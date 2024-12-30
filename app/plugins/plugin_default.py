@@ -11,16 +11,8 @@ class Plugin:
     """
     # Define the parameters for this plugin and their default values
     plugin_params = {
-        'input_column_order': ["d", "o", "h", "l", "c"],
-        'output_column_order': ["d", "o", "l", "h", "c"],
-        'dataset_prefix': "base_",
-        'target_prefix': "normalized_",
-        'target_column': 4,  # Index in output_column_order (zero-based)
-        'pip_value': 0.00001,
-        'range': (-1, 1),
-        'd1_proportion': 0.3,
-        'd2_proportion': 0.3,
-        'only_low_CV': True  # Parameter to control processing of low CV columns
+        'target_column': 'CLOSE',
+        'time_horizon': 6
     }
 
     # Define the debug variables for this plugin
