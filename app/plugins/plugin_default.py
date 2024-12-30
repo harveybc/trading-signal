@@ -12,7 +12,7 @@ class Plugin:
     # Define the parameters for this plugin and their default values
     plugin_params = {
         'target_column': 'CLOSE',
-        'time_horizon': 6
+        'time_horizon': 1
     }
 
     # Define the debug variables for this plugin
