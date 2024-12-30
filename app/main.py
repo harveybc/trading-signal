@@ -3,7 +3,7 @@ import sys
 import json
 from app.config_handler import load_config, save_config, remote_load_config, remote_save_config, remote_log
 from app.cli import parse_args
-from app.data_processor import run_preprocessor_pipeline
+from app.data_processor import run_trading-signal_pipeline
 from app.data_handler import load_csv
 from app.config import DEFAULT_VALUES
 from app.plugin_loader import load_plugin
@@ -40,11 +40,11 @@ def main():
     # Plugin loading and processing
     plugin_name = config['plugin']
     print(f"Loading plugin: {plugin_name}")
-    plugin_class, _ = load_plugin('preprocessor.plugins', plugin_name)
+    plugin_class, _ = load_plugin('trading-signal.plugins', plugin_name)
     plugin = plugin_class()
 
     print("Running the feature engineering pipeline...")
-    run_preprocessor_pipeline(config, plugin)
+    run_trading-signal_pipeline(config, plugin)
 
     # Save local configuration if specified
     if 'save_config' in config and config['save_config']:

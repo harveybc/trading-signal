@@ -12,7 +12,7 @@ def load_config(file_path):
     return config
 
 def get_plugin_default_params(plugin_name):
-    plugin_class, _ = load_plugin('preprocessor.plugins', plugin_name)
+    plugin_class, _ = load_plugin('trading-signal.plugins', plugin_name)
     plugin_instance = plugin_class()
     return plugin_instance.plugin_params
 

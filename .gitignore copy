@@ -48,7 +48,7 @@ MANIFEST
 
 # Per-project virtualenvs
 .venv*/
-.vs/preprocessor/v16/.suo
+.vs/trading-signal/v16/.suo
 .vs/ProjectSettings.json
 .vs/slnx.sqlite
 .vs/VSWorkspaceState.json

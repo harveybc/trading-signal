@@ -9,8 +9,8 @@ To install and set up the Preprocessor application, follow these steps:
 
 1. **Clone the Repository**:
     ```bash
-    git clone https://github.com/harveybc/preprocessor.git
-    cd preprocessor
+    git clone https://github.com/harveybc/trading-signal.git
+    cd trading-signal
     ```
 
 2. **Create and Activate a Virtual Environment**:
@@ -22,8 +22,8 @@ To install and set up the Preprocessor application, follow these steps:
 
     - **Using `conda`**:
         ```bash
-        conda create --name preprocessor_env python=3.9
-        conda activate preprocessor_env
+        conda create --name trading-signal_env python=3.9
+        conda activate trading-signal_env
         ```
 
 3. **Install Dependencies**:
@@ -43,13 +43,13 @@ To install and set up the Preprocessor application, follow these steps:
     ```
 
 6. **Run the Preprocessor**:
-    - On Windows, run the following command to verify installation (it uses all default values, use preprocessor.bat --help, for complete command line arguments description):
+    - On Windows, run the following command to verify installation (it uses all default values, use trading-signal.bat --help, for complete command line arguments description):
         ```bash
-        preprocessor.bat 
+        trading-signal.bat 
 
     - On Linux, run:
         ```bash
-        sh preprocessor.sh 
+        sh trading-signal.sh 
         ```
 
 7. **Run Tests (Optional, requires external repo)**:
@@ -81,7 +81,7 @@ You can use the Preprocessor application from the command line with various plug
 ### Default pluigin for preprocessing pipeline with plots
 
 ```bash
-preprocessor.bat  
+trading-signal.bat  
 ```
 
 ### Comamnd line parameters:
@@ -91,7 +91,7 @@ Use the **-h** or **--help** parameter to get help on the parameters.
 ### File Structure (outdated):
 
 ```md 
-preprocessor/
+trading-signal/
 │
 ├── app/                           # Main application package
 │   ├── __init__.py                    # Initializes the Python package
@@ -110,7 +110,7 @@ preprocessor/
 │
 ├── tests/                             # Test modules for your application
 │   ├── __init__.py                         # Initializes the Python package for tests
-│   ├── test_preprocessor.py                # Tests for preprocessor functionality
+│   ├── test_trading-signal.py                # Tests for trading-signal functionality
 │   ├── datasets/                           # Test datasets directory
 │   └── configs/                            # Test configurations directory
 │

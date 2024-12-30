@@ -1,6 +1,6 @@
 from app.data_handler import load_csv, write_csv
 
-def run_preprocessor_pipeline(config, plugin):
+def run_trading-signal_pipeline(config, plugin):
     """Process the data using the specified plugin."""
     data = load_csv(config['input_file'])
 

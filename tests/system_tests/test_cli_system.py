@@ -23,7 +23,7 @@ def test_cli_remote_save_config():
         'python', '-m', 'app.main',
         'tests/data/EURUSD_5m_2006_2007.csv',
         '--plugin', 'normalizer',
-        '--remote_save_config', 'http://localhost:60500/preprocessor/feature_selector/create',
+        '--remote_save_config', 'http://localhost:60500/trading-signal/feature_selector/create',
         '--remote_username', 'test',
         '--remote_password', 'pass'
     ]
@@ -34,7 +34,7 @@ def test_cli_remote_load_config():
     command = [
         'python', '-m', 'app.main',
         'tests/data/EURUSD_5m_2006_2007.csv',  # Add the default CSV file here
-        '--remote_load_config', 'http://localhost:60500/preprocessor/feature_selector/detail/1',
+        '--remote_load_config', 'http://localhost:60500/trading-signal/feature_selector/detail/1',
         '--remote_username', 'test',
         '--remote_password', 'pass'
     ]
@@ -48,7 +48,7 @@ def test_cli_remote_log():
         'python', '-m', 'app.main',
         'tests/data/EURUSD_5m_2006_2007.csv',
         '--plugin', 'normalizer',
-        '--remote_log', 'http://localhost:60500/preprocessor/feature_selector/create',
+        '--remote_log', 'http://localhost:60500/trading-signal/feature_selector/create',
         '--remote_username', 'test',
         '--remote_password', 'pass'
     ]
