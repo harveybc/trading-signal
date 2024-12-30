@@ -12,7 +12,7 @@ def run_processing_pipeline(config, plugin):
     # Debugging: Print processed data
     print("Processed data:\n", processed_data.head())
 
-    include_date = config['force_date']  if 'date' in processed_data.columns else False
+    include_date = config['force_date'] if 'date' in processed_data.columns else False
 
     if not config['quiet_mode']:
         print("Processing complete. Writing output...")
@@ -22,3 +22,4 @@ def run_processing_pipeline(config, plugin):
     if not config['quiet_mode']:
         print(f"Output written to {config['output_file']}")
     return processed_data
+
