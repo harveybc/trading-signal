@@ -115,13 +115,6 @@ class Plugin:
         return shifted_data
 
 
-
-
-
-
-
-
-
 # Example usage
 if __name__ == "__main__":
     plugin = Plugin()
