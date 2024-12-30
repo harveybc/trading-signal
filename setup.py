@@ -1,20 +1,15 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='preprocessor',
+    name='trading-signal',
     version='0.1.1',
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'preprocessor=app.main:main'
+            'trading-signal=app.main:main'
         ],
-        'preprocessor.plugins': [
-            'default_plugin=app.plugins.plugin_default:Plugin',
-            'normalizer=app.plugins.plugin_normalizer:Plugin',
-            'unbiaser=app.plugins.plugin_unbiaser:Plugin',
-            'trimmer=app.plugins.plugin_trimmer:Plugin',
-            'feature_selector=app.plugins.plugin_feature_selector_pre:Plugin',
-            'cleaner=app.plugins.plugin_cleaner:Plugin'
+        'trading-signal.plugins': [
+            'default_plugin=app.plugins.plugin_default:Plugin'
         ]
     },
     install_requires=[
