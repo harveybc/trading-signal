@@ -1,21 +1,20 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='trading-signal',
+    name='trading_signal',
     version='0.1.0',
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'trading-signal=app.main:main'
+            'trading_signal=app.main:main'
         ],
-        'trading-signal.plugins': [
+        'trading_signal.plugins': [
             'default_plugin=app.plugins.plugin_default:Plugin'
         ]
     },
     install_requires=[
         'pandas',
-        'numpy',
-        'requests'
+        'numpy'
     ],
     author='Harvey Bastidas',
     author_email='your.email@example.com',
