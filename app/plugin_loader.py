@@ -1,12 +1,17 @@
 import pkg_resources
 
-def load_plugin(plugin_group ='trading_signal.plugins', plugin_name='default_plugin'):
+def load_plugin(plugin_group='trading_signal.plugins', plugin_name='default_plugin'):
     print(f"Attempting to load plugin: {plugin_name}")
     try:
-        entry_point = pkg_resources.get_entry_map('trading_signal', plugin_group)[plugin_name]
+        entry_map = pkg_resources.get_entry_map('trading_signal', plugin_group)
+        print(f"Available plugins in group '{plugin_group}': {list(entry_map.keys())}")
+        if plugin_name not in entry_map:
+            raise KeyError(f"Plugin '{plugin_name}' not found in the entry map.")
+        entry_point = entry_map[plugin_name]
+        print(f"Found entry point: {entry_point}")
         plugin_class = entry_point.load()
-        required_params = list(plugin_class.plugin_params.keys())
-        print(f"Successfully loaded plugin: {plugin_name} with params: {plugin_class.plugin_params}")
+        required_params = list(getattr(plugin_class, 'plugin_params', {}).keys())
+        print(f"Successfully loaded plugin: {plugin_name} with params: {required_params}")
         return plugin_class, required_params
     except KeyError as e:
         print(f"Failed to find plugin {plugin_name}, Error: {e}")
