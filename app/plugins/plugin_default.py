@@ -81,7 +81,7 @@ class Plugin:
             raise ValueError("[ERROR] DATE_TIME column is missing in the input data!")
 
         # Step 2: Extract DATE_TIME and target column
-        target_column = self.params['target_columns']
+        target_column = self.params['target_column']
         print(f"[DEBUG] Target column: {target_column}")
 
         if target_column not in data.columns:
