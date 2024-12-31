@@ -12,7 +12,8 @@ class Plugin:
     # Define the parameters for this plugin and their default values
     plugin_params = {
         'target_column': 'CLOSE',
-        'time_horizon': 1
+        'time_horizon': 6,
+        'std_dev_horizon': 12
     }
 
     # Define the debug variables for this plugin
@@ -62,13 +63,14 @@ class Plugin:
     def process(self, data):
         """
         Generate a training signal dataset by extracting DATE_TIME and the target column,
-        shifting the target column forward by the specified time horizon.
+        shifting the target column forward by the specified time horizon, and calculating
+        the standard deviation over the last self.params['std_dev_horizon'] ticks.
 
         Args:
             data (pd.DataFrame): The input data to be processed.
 
         Returns:
-            pd.DataFrame: The shifted dataset with DATE_TIME and target column.
+            pd.DataFrame: The processed dataset with DATE_TIME, target column, and standard deviation.
         """
         print(f"[DEBUG] Loaded data shape: {data.shape}")
         print(f"[DEBUG] Columns in the data: {list(data.columns)}")
@@ -88,30 +90,37 @@ class Plugin:
             raise ValueError(f"[ERROR] Target column '{target_column}' is missing in the input data!")
 
         # Extract relevant columns
-        shifted_data = data[['DATE_TIME', target_column]].copy()
-        print(f"[DEBUG] Extracted columns: {list(shifted_data.columns)}")
+        processed_data = data[['DATE_TIME', target_column]].copy()
+        print(f"[DEBUG] Extracted columns: {list(processed_data.columns)}")
 
         # Step 3: Shift the target column forward by time_horizon ticks
         time_horizon = self.params['time_horizon']
         print(f"[DEBUG] Shifting target column '{target_column}' forward by {time_horizon} ticks...")
 
-        shifted_data[target_column] = shifted_data[target_column].shift(-time_horizon)
+        processed_data[target_column] = processed_data[target_column].shift(-time_horizon)
 
-        # Step 4: Drop rows with NaN values resulting from the shift
-        initial_shape = shifted_data.shape
-        shifted_data.dropna(inplace=True)
-        final_shape = shifted_data.shape
-        print(f"[DEBUG] Shifted data shape before dropping NaN: {initial_shape}")
-        print(f"[DEBUG] Shifted data shape after dropping NaN: {final_shape}")
+        # Step 4: Calculate the rolling standard deviation
+        std_dev_horizon = self.params['std_dev_horizon']
+        print(f"[DEBUG] Calculating rolling standard deviation over the last {std_dev_horizon} ticks...")
 
-        # Step 5: Reset index if necessary
-        shifted_data.reset_index(drop=True, inplace=True)
+        processed_data['std_dev'] = processed_data[target_column].rolling(window=std_dev_horizon).std()
+
+        # Step 5: Drop rows with NaN values (from both shift and rolling calculations)
+        initial_shape = processed_data.shape
+        processed_data.dropna(inplace=True)
+        final_shape = processed_data.shape
+        print(f"[DEBUG] Processed data shape before dropping NaN: {initial_shape}")
+        print(f"[DEBUG] Processed data shape after dropping NaN: {final_shape}")
+
+        # Step 6: Reset index if necessary
+        processed_data.reset_index(drop=True, inplace=True)
 
         # Optional: Sort by DATE_TIME to ensure chronological order
-        shifted_data.sort_values(by='DATE_TIME', inplace=True)
-        shifted_data.reset_index(drop=True, inplace=True)
-        print(f"[DEBUG] Final shifted data shape: {shifted_data.shape}")
-        return shifted_data
+        processed_data.sort_values(by='DATE_TIME', inplace=True)
+        processed_data.reset_index(drop=True, inplace=True)
+
+        print(f"[DEBUG] Final processed data shape: {processed_data.shape}")
+        return processed_data
 
 
 # Example usage
