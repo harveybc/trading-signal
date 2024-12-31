@@ -111,7 +111,6 @@ class Plugin:
         shifted_data.sort_values(by='DATE_TIME', inplace=True)
         shifted_data.reset_index(drop=True, inplace=True)
         print(f"[DEBUG] Final shifted data shape: {shifted_data.shape}")
-
         return shifted_data
 
 
