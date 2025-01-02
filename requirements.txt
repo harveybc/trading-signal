@@ -13,19 +13,8 @@
 # Remember to also add them in setup.cfg but unpinned.
 # Example:
 numpy
-scikit-learn
-joblib
-scipy
-build
 pytest
 pdoc3
-boruta
-statsmodels
-PyWavelets
-nolds
-kagglehub
-matplotlib
 pandas
-pillow
-kiwisolver
+requests
 #
