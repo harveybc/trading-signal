@@ -76,32 +76,32 @@ class Plugin:
         print(f"[DEBUG] Loaded data shape: {data.shape}")
         print(f"[DEBUG] Columns in the data: {list(data.columns)}")
 
-        # Step 1: Ensure DATE_TIME column is included as a regular column
+        # Paso 1: Asegurarse de que la columna DATE_TIME esté como columna regular
         if isinstance(data.index, pd.DatetimeIndex):
-            print("[DEBUG] DATE_TIME is currently the index. Resetting it to a regular column...")
+            print("[DEBUG] DATE_TIME está actualmente como índice. Reiniciando a columna regular...")
             data.reset_index(inplace=True)
         if 'DATE_TIME' not in data.columns:
-            raise ValueError("[ERROR] DATE_TIME column is missing in the input data!")
+            raise ValueError("[ERROR] La columna DATE_TIME falta en los datos de entrada!")
 
-        # Step 2: Extract DATE_TIME and target column
+        # Paso 2: Extraer DATE_TIME y la columna objetivo
         target_column = self.params['target_column']
         print(f"[DEBUG] Target column: {target_column}")
 
         if target_column not in data.columns:
-            raise ValueError(f"[ERROR] Target column '{target_column}' is missing in the input data!")
+            raise ValueError(f"[ERROR] La columna objetivo '{target_column}' falta en los datos de entrada!")
 
-        # Extract relevant columns
+        # Extraer columnas relevantes
         processed_data = data[['DATE_TIME', target_column]].copy()
 
-        # Step 3: Generate hourly predictions (short-term horizon)
+        # Paso 3: Generar predicciones horarias (horizonte a corto plazo)
         time_horizon = self.params['time_horizon']
-        print(f"[DEBUG] Generating hourly predictions for the next {time_horizon} ticks...")
+        print(f"[DEBUG] Generando predicciones horarias para los próximos {time_horizon} ticks...")
         for i in range(1, time_horizon + 1):
             processed_data[f"{target_column}_t+{i}"] = processed_data[target_column].shift(-i)
 
-        # Step 4: Generate daily predictions (long-term horizon)
-        print("[DEBUG] Calculating daily HIGH, LOW, CLOSE, OPEN...")
-        data['DATE'] = pd.to_datetime(data['DATE_TIME']).dt.date  # Extract date
+        # Paso 4: Generar predicciones diarias (horizonte a largo plazo)
+        print("[DEBUG] Calculando daily HIGH, LOW, CLOSE, OPEN...")
+        data['DATE'] = pd.to_datetime(data['DATE_TIME']).dt.date  # Extraer fecha
         daily_data = data.groupby('DATE')[target_column].agg(
             HIGH='max',
             LOW='min',
@@ -109,41 +109,51 @@ class Plugin:
             OPEN='first'
         ).reset_index()
 
+        # Renombrar columnas diarias para evitar conflictos durante la fusión
+        daily_data = daily_data.rename(columns={
+            'HIGH': 'daily_HIGH',
+            'LOW': 'daily_LOW',
+            'CLOSE': 'daily_CLOSE',
+            'OPEN': 'daily_OPEN'
+        })
+
         daily_horizon = self.params['daily_horizon']
-        print(f"[DEBUG] Generating daily predictions for the next {daily_horizon} days...")
-        for col in ['HIGH', 'LOW', 'CLOSE', 'OPEN']:
+        print(f"[DEBUG] Generando predicciones diarias para los próximos {daily_horizon} días...")
+        for col in ['daily_HIGH', 'daily_LOW', 'daily_CLOSE', 'daily_OPEN']:
             for i in range(1, daily_horizon + 1):
                 daily_data[f"{col}_D{i}"] = daily_data[col].shift(-i)
 
-        # Merge daily predictions back to the main dataset
+        # Fusión de las predicciones diarias de vuelta al conjunto de datos principal
         processed_data['DATE'] = pd.to_datetime(processed_data['DATE_TIME']).dt.date
         processed_data = processed_data.merge(daily_data, on='DATE', how='left')
 
-        # Step 5: Calculate rolling standard deviations
+        # Paso 5: Calcular desviaciones estándar móviles
         std_dev_horizon = self.params['std_dev_horizon']
-        print(f"[DEBUG] Calculating rolling standard deviation over the last {std_dev_horizon} ticks...")
+        print(f"[DEBUG] Calculando desviación estándar móvil sobre los últimos {std_dev_horizon} ticks...")
+        if target_column not in processed_data.columns:
+            raise KeyError(f"La columna objetivo '{target_column}' no se encontró después de la fusión.")
         processed_data['std_dev_12h'] = processed_data[target_column].rolling(window=std_dev_horizon).std()
 
-        print("[DEBUG] Calculating rolling standard deviation over the last 12 days...")
-        processed_data['std_dev_12d'] = data[target_column].rolling(window=12 * 24).std()
+        print("[DEBUG] Calculando desviación estándar móvil sobre los últimos 12 días...")
+        processed_data['std_dev_12d'] = processed_data[target_column].rolling(window=12 * 24).std()
 
-        # Step 6: Drop rows with NaN values
+        # Paso 6: Eliminar filas con valores NaN
         initial_shape = processed_data.shape
         processed_data.dropna(inplace=True)
         final_shape = processed_data.shape
-        print(f"[DEBUG] Processed data shape before dropping NaN: {initial_shape}")
-        print(f"[DEBUG] Processed data shape after dropping NaN: {final_shape}")
+        print(f"[DEBUG] Forma de los datos procesados antes de eliminar NaN: {initial_shape}")
+        print(f"[DEBUG] Forma de los datos procesados después de eliminar NaN: {final_shape}")
 
-        # Step 7: Organize columns as per agreed structure
-        print("[DEBUG] Organizing columns...")
+        # Paso 7: Organizar columnas según la estructura acordada
+        print("[DEBUG] Organizando columnas...")
         hourly_columns = [f"{target_column}_t+{i}" for i in range(1, time_horizon + 1)]
-        daily_columns = [f"{col}_D{i}" for col in ['HIGH', 'LOW', 'CLOSE', 'OPEN'] for i in range(1, daily_horizon + 1)]
+        daily_columns = [f"{col}_D{i}" for col in ['daily_HIGH', 'daily_LOW', 'daily_CLOSE', 'daily_OPEN'] for i in range(1, daily_horizon + 1)]
         std_dev_columns = ['std_dev_12h', 'std_dev_12d']
 
         final_columns = ['DATE_TIME'] + hourly_columns + daily_columns + std_dev_columns
         processed_data = processed_data[final_columns]
 
-        print(f"[DEBUG] Final processed data shape: {processed_data.shape}")
+        print(f"[DEBUG] Forma final de los datos procesados: {processed_data.shape}")
         return processed_data
 
 
