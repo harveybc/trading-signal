@@ -125,7 +125,7 @@ class Plugin:
         processed_data['std_dev_12h'] = processed_data[target_column].rolling(window=std_dev_horizon).std()
 
         print("[DEBUG] Calculating rolling standard deviation over the last 12 days...")
-        processed_data['std_dev_12d'] = processed_data[target_column].rolling(window=12 * 24).std()
+        processed_data['std_dev_12d'] = data[target_column].rolling(window=12 * 24).std()
 
         # Step 6: Drop rows with NaN values
         initial_shape = processed_data.shape
@@ -145,6 +145,7 @@ class Plugin:
 
         print(f"[DEBUG] Final processed data shape: {processed_data.shape}")
         return processed_data
+
 
 
 
