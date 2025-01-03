@@ -100,15 +100,18 @@ class Plugin:
         for i in range(1, time_horizon + 1):
             processed_data[f"CLOSE_t+{i}"] = processed_data['CLOSE'].shift(-i)
 
-        # Paso 4: Generar predicciones diarias (horizonte a largo plazo) para 'CLOSE'
+        # Paso 4: Generar predicciones diarias (horizonte a largo plazo) para todas las columnas objetivo
         print("[DEBUG] Calculando daily HIGH, LOW, CLOSE, OPEN...")
         data['DATE'] = pd.to_datetime(data['DATE_TIME']).dt.date  # Extraer fecha
-        daily_data = data.groupby('DATE')[target_columns].agg(
-            HIGH='max',
-            LOW='min',
-            CLOSE='last',
-            OPEN='first'
-        ).reset_index()
+
+        # Utilizar un diccionario para la agregación correcta
+        daily_agg = {
+            'HIGH': 'max',
+            'LOW': 'min',
+            'CLOSE': 'last',
+            'OPEN': 'first'
+        }
+        daily_data = data.groupby('DATE').agg(daily_agg).reset_index()
 
         # Renombrar columnas diarias para evitar conflictos durante la fusión
         daily_data = daily_data.rename(columns={
@@ -161,6 +164,7 @@ class Plugin:
         print(f"[DEBUG] Final processed data shape: {processed_data.shape}")
         print(f"[DEBUG] Final columns: {list(processed_data.columns)}")
         return processed_data
+
 
 
 
