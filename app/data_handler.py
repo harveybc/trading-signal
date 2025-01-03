@@ -1,7 +1,5 @@
 import pandas as pd
 
-
-
 def load_csv(file_path):
     """
     Load a CSV file assuming it has headers and a 'DATE_TIME' column at the beginning.
