@@ -83,26 +83,27 @@ class Plugin:
         if 'DATE_TIME' not in data.columns:
             raise ValueError("[ERROR] La columna DATE_TIME falta en los datos de entrada!")
 
-        # Paso 2: Extraer DATE_TIME y la columna objetivo
-        target_column = self.params['target_column']
-        print(f"[DEBUG] Target column: {target_column}")
+        # Paso 2: Extraer DATE_TIME y las columnas objetivo
+        target_columns = ['CLOSE', 'HIGH', 'LOW', 'OPEN']
+        print(f"[DEBUG] Target columns: {target_columns}")
 
-        if target_column not in data.columns:
-            raise ValueError(f"[ERROR] La columna objetivo '{target_column}' falta en los datos de entrada!")
+        for target_column in target_columns:
+            if target_column not in data.columns:
+                raise ValueError(f"[ERROR] La columna objetivo '{target_column}' falta en los datos de entrada!")
 
         # Extraer columnas relevantes
-        processed_data = data[['DATE_TIME', target_column]].copy()
+        processed_data = data[['DATE_TIME'] + target_columns].copy()
 
-        # Paso 3: Generar predicciones horarias (horizonte a corto plazo)
+        # Paso 3: Generar predicciones horarias (horizonte a corto plazo) para 'CLOSE'
         time_horizon = self.params['time_horizon']
         print(f"[DEBUG] Generando predicciones horarias para los próximos {time_horizon} ticks...")
         for i in range(1, time_horizon + 1):
-            processed_data[f"{target_column}_t+{i}"] = processed_data[target_column].shift(-i)
+            processed_data[f"CLOSE_t+{i}"] = processed_data['CLOSE'].shift(-i)
 
-        # Paso 4: Generar predicciones diarias (horizonte a largo plazo)
+        # Paso 4: Generar predicciones diarias (horizonte a largo plazo) para 'CLOSE'
         print("[DEBUG] Calculando daily HIGH, LOW, CLOSE, OPEN...")
         data['DATE'] = pd.to_datetime(data['DATE_TIME']).dt.date  # Extraer fecha
-        daily_data = data.groupby('DATE')[target_column].agg(
+        daily_data = data.groupby('DATE')[target_columns].agg(
             HIGH='max',
             LOW='min',
             CLOSE='last',
@@ -130,15 +131,15 @@ class Plugin:
         # Depuración después de la fusión
         print(f"[DEBUG] Columns after merge: {list(processed_data.columns)}")
 
-        # Paso 5: Calcular desviaciones estándar móviles
+        # Paso 5: Calcular desviaciones estándar móviles para 'CLOSE'
         std_dev_horizon = self.params['std_dev_horizon']
         print(f"[DEBUG] Calculando desviación estándar móvil sobre los últimos {std_dev_horizon} ticks...")
-        if target_column not in processed_data.columns:
-            raise KeyError(f"La columna objetivo '{target_column}' no se encontró después de la fusión.")
-        processed_data['std_dev_12h'] = processed_data[target_column].rolling(window=std_dev_horizon).std()
+        if 'CLOSE' not in processed_data.columns:
+            raise KeyError(f"La columna objetivo 'CLOSE' no se encontró después de la fusión.")
+        processed_data['std_dev_12h'] = processed_data['CLOSE'].rolling(window=std_dev_horizon).std()
 
         print("[DEBUG] Calculando desviación estándar móvil sobre los últimos 12 días...")
-        processed_data['std_dev_12d'] = processed_data[target_column].rolling(window=12 * 24).std()
+        processed_data['std_dev_12d'] = processed_data['CLOSE'].rolling(window=12 * 24).std()
 
         # Paso 6: Eliminar filas con valores NaN
         initial_shape = processed_data.shape
@@ -149,18 +150,17 @@ class Plugin:
 
         # Paso 7: Organizar columnas según la estructura acordada
         print("[DEBUG] Organizando columnas...")
-        hourly_columns = [f"{target_column}_t+{i}" for i in range(1, time_horizon + 1)]
+        hourly_columns = [f"CLOSE_t+{i}" for i in range(1, time_horizon + 1)]
         daily_columns = [f"{col}_D{i}" for col in ['daily_HIGH', 'daily_LOW', 'daily_CLOSE', 'daily_OPEN'] for i in range(1, daily_horizon + 1)]
         std_dev_columns = ['std_dev_12h', 'std_dev_12d']
 
-        # Incluir 'CLOSE' para el valor actual
-        final_columns = ['DATE_TIME', target_column] + hourly_columns + daily_columns + std_dev_columns
+        # Incluir 'CLOSE', 'HIGH', 'LOW', 'OPEN' para el valor actual
+        final_columns = ['DATE_TIME', 'CLOSE', 'HIGH', 'LOW', 'OPEN'] + hourly_columns + daily_columns + std_dev_columns
         processed_data = processed_data[final_columns]
 
         print(f"[DEBUG] Final processed data shape: {processed_data.shape}")
         print(f"[DEBUG] Final columns: {list(processed_data.columns)}")
         return processed_data
-
 
 
 
