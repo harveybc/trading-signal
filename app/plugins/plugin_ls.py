@@ -7,13 +7,15 @@ import json
 
 class Plugin:
     """
-    Plugin to preprocess the dataset for feature extraction.
+    Plugin to preprocess the dataset for traainign NEAT agent including hourly and daily predictions, rolling standard deviations, and proper column organization.
     """
     # Define the parameters for this plugin and their default values
     plugin_params = {
         'target_column': 'CLOSE',
         'time_horizon': 6,
-        'std_dev_horizon': 12
+        'std_dev_horizon': 12,
+        'daily_horizon': 6
+
     }
 
     # Define the debug variables for this plugin
