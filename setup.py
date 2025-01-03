@@ -9,7 +9,8 @@ setup(
             'trading_signal=app.main:main'
         ],
         'trading_signal.plugins': [
-            'default_plugin=app.plugins.plugin_default:Plugin'
+            'default_plugin=app.plugins.plugin_default:Plugin',
+            'ls=app.plugins.plugin_ls:Plugin'
         ]
     },
     install_requires=[
