@@ -4,29 +4,45 @@ import pandas as pd
 def load_csv(file_path):
     """
     Load a CSV file assuming it has headers and a 'DATE_TIME' column at the beginning.
-    The 'DATE_TIME' column remains as a regular column.
+    The 'DATE_TIME' column remains as a regular column, and all other columns are converted to numeric.
+    
+    Args:
+        file_path (str): Path to the CSV file.
+        
+    Returns:
+        pd.DataFrame: Loaded and processed DataFrame.
     """
     try:
-        # Read CSV with headers and parse the first column (assumed to be the 'DATE_TIME' column)
+        # Read CSV with headers and parse the first column (assumed 'DATE_TIME')
         data = pd.read_csv(file_path, sep=',', parse_dates=[0], dayfirst=True)
 
-        # Explicitly ensure the first column is named 'DATE_TIME'
+        # Rename the first column explicitly to 'DATE_TIME'
         data.rename(columns={data.columns[0]: 'DATE_TIME'}, inplace=True)
 
-        print(f"[DEBUG] Loaded data columns: {data.columns}")  # Debugging line
+        print(f"[DEBUG] Loaded data columns: {list(data.columns)}")  # Debugging
 
-        # Convert all non-'DATE_TIME' columns to numeric, coercing errors to NaN
+        # Convert all non-'DATE_TIME' columns to numeric, coercing invalid values to NaN
         for col in data.columns:
             if col != 'DATE_TIME':
                 data[col] = pd.to_numeric(data[col], errors='coerce')
 
-        print(f"[DEBUG] First 5 rows of the data:\n{data.head()}")
+        # Validate the 'CLOSE' column
+        if 'CLOSE' not in data.columns:
+            raise KeyError("Column 'CLOSE' is missing in the input data!")
+
+        if data['CLOSE'].isna().any():
+            print("[WARNING] 'CLOSE' column contains NaN values. Filling missing values...")
+            data['CLOSE'].fillna(method='ffill', inplace=True)
+            data['CLOSE'].fillna(method='bfill', inplace=True)
+
+        print(f"[DEBUG] First 5 rows of the data:\n{data.head()}")  # Debugging
 
     except Exception as e:
         print(f"[ERROR] An error occurred while loading the CSV: {e}")
         raise
 
     return data
+
 
 
 
