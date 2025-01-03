@@ -127,6 +127,9 @@ class Plugin:
         processed_data['DATE'] = pd.to_datetime(processed_data['DATE_TIME']).dt.date
         processed_data = processed_data.merge(daily_data, on='DATE', how='left')
 
+        # Depuración después de la fusión
+        print(f"[DEBUG] Columns after merge: {list(processed_data.columns)}")
+
         # Paso 5: Calcular desviaciones estándar móviles
         std_dev_horizon = self.params['std_dev_horizon']
         print(f"[DEBUG] Calculando desviación estándar móvil sobre los últimos {std_dev_horizon} ticks...")
@@ -150,10 +153,12 @@ class Plugin:
         daily_columns = [f"{col}_D{i}" for col in ['daily_HIGH', 'daily_LOW', 'daily_CLOSE', 'daily_OPEN'] for i in range(1, daily_horizon + 1)]
         std_dev_columns = ['std_dev_12h', 'std_dev_12d']
 
-        final_columns = ['DATE_TIME'] + hourly_columns + daily_columns + std_dev_columns
+        # Incluir 'CLOSE' para el valor actual
+        final_columns = ['DATE_TIME', target_column] + hourly_columns + daily_columns + std_dev_columns
         processed_data = processed_data[final_columns]
 
-        print(f"[DEBUG] Forma final de los datos procesados: {processed_data.shape}")
+        print(f"[DEBUG] Final processed data shape: {processed_data.shape}")
+        print(f"[DEBUG] Final columns: {list(processed_data.columns)}")
         return processed_data
 
 

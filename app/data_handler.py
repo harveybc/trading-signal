@@ -1,6 +1,7 @@
 import pandas as pd
 
 
+
 def load_csv(file_path):
     """
     Load a CSV file assuming it has headers and a 'DATE_TIME' column at the beginning.
@@ -43,6 +44,7 @@ def load_csv(file_path):
         raise
 
     return data
+
 
 
 def write_csv(file_path, data, include_date=True, headers=True):
