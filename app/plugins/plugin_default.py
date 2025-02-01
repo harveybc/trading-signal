@@ -9,7 +9,7 @@ class Plugin:
     """
     Plugin to preprocess the dataset for feature extraction.
     This version generates hourly and daily predictions with header names
-    compatible with the heuristic system.
+    compatible with the heuristic system, and preserves the OPEN, HIGH, and LOW columns.
     """
     # Define the parameters for this plugin and their default values
     plugin_params = {
@@ -67,9 +67,10 @@ class Plugin:
     def process(self, data):
         """
         Generate a dataset with hourly and daily predictions.
-
+        
         The output dataframe will have the following columns:
           - DATE_TIME
+          - OPEN, HIGH, LOW, and the target column (if available)
           - Prediction_h_1, ..., Prediction_h_{time_horizon}
           - Prediction_d_1, ..., Prediction_d_{days_horizon}
           - (Optional: std_dev computed on the target column)
@@ -86,16 +87,22 @@ class Plugin:
         if 'DATE_TIME' not in data.columns:
             raise ValueError("[ERROR] DATE_TIME column is missing in the input data!")
 
-        # Step 2: Extract target column and DATE_TIME
         target_column = self.params['target_column']
         print(f"[DEBUG] Target column: {target_column}")
-
         if target_column not in data.columns:
             raise ValueError(f"[ERROR] Target column '{target_column}' is missing in the input data!")
+        
+        # Step 2: Determine which additional price columns to keep (if they exist)
+        price_columns = ['OPEN', 'HIGH', 'LOW']
+        available_price_cols = [col for col in price_columns if col in data.columns]
 
-        processed_data = data[['DATE_TIME', target_column]].copy()
+        # Always include DATE_TIME and the target column (e.g., CLOSE)
+        columns_to_extract = ['DATE_TIME'] + available_price_cols + [target_column]
+        processed_data = data[columns_to_extract].copy()
+        print(f"[DEBUG] Extracted columns: {list(processed_data.columns)}")
 
-        # Step 3: Generate hourly predictions
+        # Step 3: Generate hourly predictions from the target column.
+        # These will be added as new columns.
         time_horizon = self.params['time_horizon']
         for i in range(1, time_horizon + 1):
             processed_data[f'Prediction_h_{i}'] = processed_data[target_column].shift(-i)
@@ -106,7 +113,7 @@ class Plugin:
         for i in range(1, days_horizon + 1):
             processed_data[f'Prediction_d_{i}'] = processed_data[target_column].shift(-i * ticks_per_day)
 
-        # Optional: Calculate rolling standard deviation (if desired)
+        # Optional: Calculate rolling standard deviation over the target column
         std_dev_horizon = self.params.get('std_dev_horizon', None)
         if std_dev_horizon is not None:
             processed_data['std_dev'] = processed_data[target_column].rolling(window=std_dev_horizon).std()
@@ -131,8 +138,8 @@ class Plugin:
 if __name__ == "__main__":
     plugin = Plugin()
     data = pd.read_csv('tests/data/EURUSD_5m_2010_2015.csv', header=None)
-    # (If needed, assign appropriate column names to the data; for example:
-    # data.columns = ['DATE_TIME', 'OPEN', 'HIGH', 'LOW', 'CLOSE', ...])
+    # If necessary, assign appropriate column names. For example:
+    # data.columns = ['DATE_TIME', 'OPEN', 'HIGH', 'LOW', 'CLOSE', ...]
     print(f"Loaded data shape: {data.shape}")
     processed_data = plugin.process(data)
     print(processed_data.head())
