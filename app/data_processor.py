@@ -21,24 +21,5 @@ def run_processing_pipeline(config, plugin):
 
     if not config['quiet_mode']:
         print(f"Output written to {config['output_file']}")
-
-    # Write separate file for short-term (hourly) predictions
-    hourly_cols = [col for col in processed_data.columns if col.startswith("Prediction_h_")]
-    if "DATE_TIME" in processed_data.columns:
-        hourly_cols = ["DATE_TIME"] + hourly_cols
-    hourly_file = "h_" + config['output_file']
-    write_csv(hourly_file, processed_data[hourly_cols], include_date=include_date, headers=config['headers'])
-    if not config['quiet_mode']:
-        print(f"Hourly predictions output written to {hourly_file}")
-
-    # Write separate file for long-term (daily) predictions
-    daily_cols = [col for col in processed_data.columns if col.startswith("Prediction_d_")]
-    if "DATE_TIME" in processed_data.columns:
-        daily_cols = ["DATE_TIME"] + daily_cols
-    daily_file = "d_" + config['output_file']
-    write_csv(daily_file, processed_data[daily_cols], include_date=include_date, headers=config['headers'])
-    if not config['quiet_mode']:
-        print(f"Daily predictions output written to {daily_file}")
-
     return processed_data
 
