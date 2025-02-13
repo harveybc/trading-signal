@@ -17,4 +17,5 @@ pytest
 pdoc3
 pandas
 requests
+backtrader
 #
