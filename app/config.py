@@ -1,7 +1,7 @@
 # config.py
 
 DEFAULT_VALUES = {
-    'input_file': "..\\preditor/\\examples\\data\\phase_1\\phase_1_normalized_d1.csv",  # Default path for the CSV file
+    'input_file': "..\\predictor/\\examples\\data\\phase_1\\phase_1_normalized_d1.csv",  # Default path for the CSV file
     'daily_output_file': './daily_output.csv',  # Default output file for processed data
     'hourly_output_file': './hourly_output.csv',  # Default output file for processed data
     'load_config': None,  # Path to load configuration file (if provided)
