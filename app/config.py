@@ -2,7 +2,8 @@
 
 DEFAULT_VALUES = {
     'input_file': 'tests/data/eurusd_hourly_dataset_aligned.csv',  # Default path for the CSV file
-    'output_file': './output.csv',  # Default output file for processed data
+    'daily_output_file': './daily_output.csv',  # Default output file for processed data
+    'hourly_output_file': './hourly_output.csv',  # Default output file for processed data
     'load_config': None,  # Path to load configuration file (if provided)
     'save_config': './output_config.json',  # Path to save the configuration file
     'remote_load_config': None,  # URL for remote configuration loading
